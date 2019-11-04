@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net"
+
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -14,10 +15,10 @@ import (
 	"syscall"
 	"time"
 
-	"continuul.io/test/lib"
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/memberlist"
 	"github.com/hashicorp/serf/serf"
+	"github.com/rbuck/serf-sample/lib"
 	"github.com/spf13/cobra"
 )
 
@@ -31,6 +32,10 @@ const (
 	defaultRaftMultiplier uint = 5
 )
 
+type ListOpts struct {
+	values []string
+}
+
 type Config struct {
 	nodeId           string
 	nodeName         string
@@ -38,7 +43,7 @@ type Config struct {
 	bindPort         int
 	advertiseAddress string
 	advertisePort    int
-	joinAddresses    lib.ListOpts
+	joinAddresses    []string
 	dataDirectory    string
 }
 
@@ -314,7 +319,7 @@ func startServer(c *Config) error {
 	}
 	defer s.shutdown()
 
-	s.joinLan(c.joinAddresses.GetAll())
+	s.joinLan(c.joinAddresses)
 
 	s.handleSignals()
 
@@ -416,7 +421,7 @@ func setupNodeId(config *Config) error {
 
 func main() {
 	config := &Config{
-		joinAddresses: lib.NewListOpts(validateJoin),
+		joinAddresses: []string{"127.0.0.1"},
 	}
 	var cmd = &cobra.Command{
 		Use:   "demo",
@@ -437,7 +442,7 @@ func main() {
 	cmd.PersistentFlags().IntVar(&config.bindPort, "bind-port", serverPort, "bind address port")
 	cmd.PersistentFlags().StringVar(&config.advertiseAddress, "advertise-address", "", "advertise address")
 	cmd.PersistentFlags().IntVar(&config.advertisePort, "advertise-port", serverPort, "advertise address port")
-	cmd.PersistentFlags().Var(&config.joinAddresses, "join", "address of other node to join on startup")
+	//cmd.PersistentFlags().Var(&config.joinAddresses, "join", "address of other node to join on startup")
 	cmd.PersistentFlags().StringVar(&config.dataDirectory, "data-dir", "", "data directory")
 
 	if err := cmd.Execute(); err != nil {
