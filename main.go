@@ -18,7 +18,7 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/memberlist"
 	"github.com/hashicorp/serf/serf"
-	"github.com/rbuck/serf-test/lib"
+	"github.com/budisugianto/serf-test/lib"
 	"github.com/spf13/cobra"
 )
 
